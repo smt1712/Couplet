@@ -3,6 +3,15 @@
 
 <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script type="text/javascript">
+        function str_to_html (str,id_tag) {
+                var html = '';
+                if (!!str) {
+                    for (var i = 0; i < str.length; i++) {
+                        html += '<span class="cp_text">' + str.charAt(i) + '</span>';
+                    }
+                }
+               document.getElementById(id_tag).innerHTML=html;
+            }
         function start_cp() {
             $.ajax({
             //几个参数需要注意一下
@@ -15,12 +24,14 @@
                     if (result.resultCode == 200) {
                         // alert("SUCCESS");
                         var in_str = result['in_str'];
-                        $("#in_str").html("上联："+in_str);
-                        $("#in_str").show();
+                        // $("#in_str").html("上联："+in_str);
+                        str_to_html(in_str,"in_str")
+                         $("#in_str").show();
                         var output = result['output'];
-                        $("#output").html("下联："+output);
-                        $("#output").show();
-
+                        // $("#output").html("下联："+output);
+                        str_to_html(output,"output")
+                         $("#output").show();
+                        // alert("SUCCESS");
 
                     }
                     ;
@@ -64,9 +75,25 @@
     }
      #btn{
          background: url("http://duilian.msra.cn/app/images/button1.gif");
-         width: 540px;
-         height: 258px;
+         width: 56px;
+         height: 56px;
      }
+     span.cp_text{
+          margin-right: 5px;
+          margin-bottom: 5px;
+          display: inline-block;
+          width: 34px;
+          height: 34px;
+          line-height: 34px;
+          text-align: center;
+          font-size: 24px;
+          vertical-align: middle;
+          background-image: url("https://ai.binwang.me/couplet/img/text-bg.png");
+          background-repeat: no-repeat;
+          background-size: cover;
+          white-space: nowrap;
+     }
+
     </style>
 
     {%- endblock styles %}
@@ -86,7 +113,7 @@
         <h2 class="text-center">欢迎来对对联</h2>
 
 
-<div style="padding: 50px 50px 10px">
+<div style="padding: 50px 50px 10px;text-align: center;">
     <form id="form1" onsubmit="return false" action="##" class="bs-example bs-example-form" role="form" method="post"  >
         <div class="row">
             <div class="bg">
@@ -95,20 +122,29 @@
                 <div class="input-group"  >
                     <input type="text" name="in_str" class="form-control" >
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" onclick="start_cp()" text-align：center id="btn">Go!</button>
+                        <button class="btn btn-default" type="button" onclick="start_cp()" text-align：center id="btn"></button>
                     </span>
+
                 </div><!-- /input-group -->
+                <br>
+                    <span>上联：</span>
+                    <span id="in_str"  style="display:none"></span>
+                    <br>
+                    <span>下联：</span>
+                    <span id="output"   style="display:none"></span>
             </div><!-- /.col-lg-6 -->
             </div><!-- col-md-12 col-md-offset-3-->
             </div><!-- /.row -->
         </div>
           <br>
 
-         <!--<img src="http://duilian.msra.cn/app/images/background.jpg"/>-->
-<h4 class="text-center" style="display:none" id="in_str"></h4>
-        <br>
 
-<h4 class="text-center" style="display:none" id="output"></h4><br>
+<!--<h4 class="text-center" style="display:none" id="in_str"></h4>-->
+
+
+
+
+<!--<h4 class="text-center" style="display:none" id="output"></h4><br>-->
 
 
 
@@ -117,15 +153,7 @@
 </div>
 </div>
 <script>
-  function str_to_html (str) {
-                var html = '';
-                if (!!str) {
-                    for (var i = 0; i < str.length; i++) {
-                        html += '<span>' + str.charAt(i) + '</span>';
-                    }
-                }
-                return html;
-            }
+
     </script>
     {%- endblock content %}
 
