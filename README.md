@@ -11,7 +11,7 @@ Train
     python trian.py
 Result
 -----------
-    python test.py
+    python app_run.py 启动服务器端 浏览器输入127.0.0.1：5000即可体验
 
 示例
 --------
