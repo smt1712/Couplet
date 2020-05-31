@@ -172,7 +172,35 @@ class Model(object):
             #Adam算法根据损失函数对每个参数的梯度的一阶矩估计和二阶矩估计动态调整针对于每个参数的学习速率
             #自适应矩估计
             self.optim = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate).minimize(self.mean_loss, global_step=self.global_step)
+    
+    
+    def test(self, test_g, model_path, zt):
+        batch_en, batch_en_len = test_g
+        feed = {self.en_seqs: batch_en,
+                self.en_length: batch_en_len,
+                self.keep_prob:1.0}
+        enc_state = self.session.run(self.enc_state, feed_dict=feed)
 
+        output_ids = []
+        dec_state = enc_state
+        dec_input, dec_len = zt.text_de_to_arr(['<s>',])  # decoder层初始输入
+        dec_input = np.array([dec_input[:-1], ])
+        dec_len = np.array([dec_len, ])
+        for i in range(self.config.seq_length):  # 最多输出50长度，防止极端情况下死循环
+            feed = {self.enc_state: dec_state,
+                    self.zh_seqs: dec_input,
+                    self.zh_length: dec_len,
+                    self.keep_prob: 1.0}
+            dec_state, output_id= self.session.run([self.dec_state, self.output_id], feed_dict=feed)
+
+            char = zt.int_to_word(output_id)
+            if char == '</s>':
+                break
+            output_ids.append(output_id)
+
+            arr = [output_id]+[len(zt.vocab)] * (self.config.seq_length - 1)
+            dec_input = np.array([arr, ])
+        return output_ids
    
 
     def load(self, checkpoint):
