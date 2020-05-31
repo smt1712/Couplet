@@ -172,7 +172,42 @@ class Model(object):
             #Adam算法根据损失函数对每个参数的梯度的一阶矩估计和二阶矩估计动态调整针对于每个参数的学习速率
             #自适应矩估计
             self.optim = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate).minimize(self.mean_loss, global_step=self.global_step)
-    
+
+    def train(self, batch_train_g, model_path):
+
+        with self.session as sess:
+            for batch_en, batch_en_len, batch_zh, batch_zh_len, batch_zh_label in batch_train_g:
+                start = time.time()
+                feed = {self.en_seqs: batch_en,
+                        self.en_length: batch_en_len,
+                        self.zh_seqs: batch_zh,
+                        self.zh_length: batch_zh_len,
+                        self.zh_seqs_label: batch_zh_label,
+                        self.keep_prob: self.config.train_keep_prob}
+                _, mean_loss, accuracy= sess.run([self.optim, self.mean_loss, self.accuracy ], feed_dict=feed)
+
+              # sess.run()通过运行所需的图形片段来执行每个Operation和计算fetches中的每个Tensor,用 feed_dict 中的值替换相应的输入值.
+
+                with open("loss.txt", "a") as file:  # 只需要将之前的”w"改为“a"即可，代表追加内容
+                    file.write(str(mean_loss)  + "\n")
+                with open("accuracy.txt", "a") as file:  # 只需要将之前的”w"改为“a"即可，代表追加内容
+                    file.write(str(accuracy) + "\n")
+
+                end = time.time()
+
+                # control the print lines
+                if self.global_step.eval() % self.config.log_every_n == 0:
+                    print('step: {}/{}... '.format(self.global_step.eval(), self.config.max_steps),
+                          'loss: {}... '.format(mean_loss),
+                          '{:.4f} sec/batch'.format((end - start)))
+
+                    print("accuracy:{}".format(accuracy))
+
+                if (self.global_step.eval() % self.config.save_every_n == 0):
+                    self.saver.save(sess, os.path.join(model_path, 'model'), global_step=self.global_step)
+                if self.global_step.eval() >= self.config.max_steps:
+                    break
+ 
     
     def test(self, test_g, model_path, zt):
         batch_en, batch_en_len = test_g
